@@ -2,279 +2,532 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Revision Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#EAEEF2; --surface:#FFFFFF; --ink:#16212B; --muted:#5E6E7A;
-    --line:#E2E8ED; --og:#B5476A; --pd:#1F8A82; --cm:#4A5BB0; --ring:#0F1A22;
-    --shadow:0 1px 2px rgba(16,30,40,.06),0 8px 24px rgba(16,30,40,.06);
-  }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;background:var(--bg);color:var(--ink);
-    font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:760px;margin:0 auto;padding:0 14px 96px}
-  .mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
-  .disp{font-family:'Space Grotesk',Inter,sans-serif}
+:root{
+  --bg:#EAEEF2;--surface:#FFFFFF;--surface2:#F3F5F8;
+  --ink:#16212B;--ink2:#2E3E4A;--muted:#5E6E7A;--line:#E2E8ED;
+  --og:#B5476A;--pd:#1F8A82;--cm:#4A5BB0;
+  --amber:#D97706;--amber-bg:#FEF3C7;--amber-line:#FDE68A;
+  --shadow:0 1px 2px rgba(16,30,40,.05),0 4px 16px rgba(16,30,40,.06);
+  --r:14px;--hbg:rgba(234,238,242,.9);
+}
+body.dark{
+  --bg:#0D1621;--surface:#162030;--surface2:#1C2B3A;
+  --ink:#E2EAF0;--ink2:#C8D6E2;--muted:#7A90A0;--line:#243444;
+  --amber-bg:#2A1A00;--amber-line:#3D2800;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.3);
+  --hbg:rgba(13,22,33,.92);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px 110px}
 
-  header.top{position:sticky;top:0;z-index:30;background:rgba(234,238,242,.86);
-    backdrop-filter:blur(10px);padding:14px 0 10px;margin:0 -14px;padding-left:14px;padding-right:14px}
-  .title{font-family:'Space Grotesk';font-weight:700;font-size:19px;letter-spacing:-.02em}
-  .sub{color:var(--muted);font-size:12.5px;margin-top:1px}
+/* HEADER */
+header.top{position:sticky;top:0;z-index:40;background:var(--hbg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);margin:0 -14px;padding:11px 14px 9px}
+.title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.title{font-family:"Space Grotesk";font-weight:700;font-size:17px;letter-spacing:-.02em}
+.sub{color:var(--muted);font-size:11.5px;margin-top:2px}
+.icon-row{display:flex;gap:6px;flex:none}
+.icon-btn{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:15px;transition:background .12s}
+.icon-btn:hover{background:var(--surface2)}
 
-  .chart{background:var(--surface);border:1px solid var(--line);border-radius:16px;
-    padding:14px 15px;margin-top:11px;box-shadow:var(--shadow)}
-  .ov-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-  .ov-num{font-family:'Space Grotesk';font-weight:700;font-size:30px;letter-spacing:-.02em;line-height:1}
-  .ov-num small{font-size:14px;color:var(--muted);font-weight:600}
-  .ov-pct{font-family:'IBM Plex Mono';font-weight:600;font-size:13px;color:var(--muted)}
-  .track{height:9px;border-radius:6px;background:#DCE3E9;overflow:hidden;margin-top:11px;display:flex}
-  .track i{display:block;height:100%}
-  .legend{display:flex;gap:8px;margin-top:12px}
-  .lg{flex:1;border:1px solid var(--line);border-radius:11px;padding:8px 9px}
-  .lg .lbl{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--muted)}
-  .dot{width:9px;height:9px;border-radius:50%;flex:none}
-  .lg .cnt{font-family:'IBM Plex Mono';font-weight:600;font-size:14px;margin-top:5px}
-  .lg .mini{height:5px;border-radius:4px;background:#DCE3E9;margin-top:6px;overflow:hidden}
-  .lg .mini i{display:block;height:100%;border-radius:4px}
+/* CHART */
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-top:9px;box-shadow:var(--shadow)}
+.ov-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.ov-num{font-family:"Space Grotesk";font-weight:700;font-size:24px;letter-spacing:-.02em}
+.ov-num small{font-size:12.5px;color:var(--muted);font-weight:600}
+.ov-meta{display:flex;gap:12px}
+.ov-tag{font-family:"IBM Plex Mono";font-size:11.5px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:4px}
+.ov-dot{width:7px;height:7px;border-radius:50%}
+.track{height:7px;border-radius:5px;background:var(--line);overflow:hidden;margin:9px 0 11px;display:flex}
+.track i{display:block;height:100%;transition:width .35s ease}
+.legend{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.lg{border:1px solid var(--line);border-radius:11px;padding:8px 9px;background:var(--surface2)}
+.lg .lh{display:flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:.03em}
+.lg .ldot{width:7px;height:7px;border-radius:50%;flex:none}
+.lg .lnums{font-family:"IBM Plex Mono";font-weight:600;font-size:12.5px;margin-top:4px;color:var(--ink)}
+.lg .lshaky{color:var(--amber);font-size:10.5px;margin-top:1px}
+.lg .lbar{height:4px;border-radius:3px;background:var(--line);margin-top:6px;overflow:hidden;display:flex}
+.lg .lbar i{display:block;height:100%}
 
-  .controls{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;align-items:center}
-  .chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);
-    font-family:Inter;font-weight:600;font-size:12.5px;padding:7px 12px;border-radius:999px;cursor:pointer}
-  .chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
-  .chip.og[aria-pressed="true"]{background:var(--og);border-color:var(--og)}
-  .chip.pd[aria-pressed="true"]{background:var(--pd);border-color:var(--pd)}
-  .chip.cm[aria-pressed="true"]{background:var(--cm);border-color:var(--cm)}
-  .spacer{flex:1}
-  .ghost{border:none;background:none;color:var(--muted);font-weight:600;font-size:12.5px;cursor:pointer;padding:6px}
+/* CONTROLS */
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:9px}
+.chip{border:1.5px solid var(--line);background:var(--surface);color:var(--muted);font-weight:600;font-size:12px;padding:6px 11px;border-radius:999px;cursor:pointer;transition:all .12s;white-space:nowrap}
+.chip.active{color:#fff;border-color:transparent}
+.chip.all.active{background:var(--ink)}
+.chip.og.active{background:var(--og)}
+.chip.pd.active{background:var(--pd)}
+.chip.cm.active{background:var(--cm)}
+.chip-today{margin-left:auto;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font-weight:700;font-size:12px;padding:6px 11px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;transition:background .12s}
+.chip-today:hover{background:var(--surface2)}
+.td-badge{background:var(--pd);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:1px 7px}
 
-  .day{background:var(--surface);border:1px solid var(--line);border-radius:16px;
-    margin-top:12px;overflow:hidden;box-shadow:var(--shadow)}
-  .day-h{display:flex;align-items:center;gap:11px;padding:13px 15px;cursor:pointer;user-select:none}
-  .dnum{font-family:'Space Grotesk';font-weight:700;font-size:12px;letter-spacing:.04em;
-    color:#fff;background:var(--ring);border-radius:8px;padding:5px 8px;flex:none}
-  .dmeta{flex:1;min-width:0}
-  .dtheme{font-family:'Space Grotesk';font-weight:600;font-size:14.5px;letter-spacing:-.01em;line-height:1.25}
-  .dcount{font-family:'IBM Plex Mono';font-weight:600;font-size:12px;color:var(--muted);margin-top:3px}
-  .chev{flex:none;color:var(--muted);transition:transform .2s ease}
-  .day.open .chev{transform:rotate(90deg)}
-  .day-body{display:none;padding:2px 9px 10px}
-  .day.open .day-body{display:block}
+/* SEARCH */
+.search-wrap{position:relative;margin-top:8px}
+.s-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none}
+#srch{width:100%;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-family:Inter;font-size:14px;padding:8px 32px 8px 31px;outline:none;transition:border-color .15s}
+#srch:focus{border-color:var(--cm)}
+#srch::placeholder{color:var(--muted)}
+#sclear{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--muted);font-size:18px;cursor:pointer;padding:2px 4px;display:none;line-height:1}
 
-  .grp{margin:8px 6px 2px}
-  .grp-h{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;
-    letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:10px 4px 4px}
-  .row{display:flex;align-items:flex-start;gap:11px;padding:10px 8px;border-radius:11px;cursor:pointer}
-  .row:active{background:#F2F5F8}
-  .box{width:21px;height:21px;border-radius:7px;border:2px solid #C2CDD6;flex:none;margin-top:1px;
-    display:grid;place-items:center;transition:all .12s ease;background:#fff}
-  .box svg{width:13px;height:13px;opacity:0;transform:scale(.6);transition:all .12s ease}
-  .row.done .box svg{opacity:1;transform:scale(1)}
-  .lab{font-size:14.5px;line-height:1.35;font-weight:500}
-  .row.done .lab{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1.5px}
+/* SECONDARY CONTROLS */
+.sec-row{display:flex;align-items:center;gap:0;padding:7px 2px 0;flex-wrap:wrap}
+.ghost{border:none;background:none;color:var(--muted);font-weight:600;font-size:12px;cursor:pointer;padding:4px 7px}
+.ghost:hover{color:var(--ink)}
+.sep{color:var(--line);font-size:16px;user-select:none}
 
-  footer{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(234,238,242,.9);
-    backdrop-filter:blur(10px);border-top:1px solid var(--line)}
-  .foot{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:11px 16px;
-    padding-bottom:calc(11px + env(safe-area-inset-bottom))}
-  .foot .st{font-family:'IBM Plex Mono';font-size:12px;color:var(--muted);flex:1}
-  .reset{border:1px solid var(--line);background:var(--surface);color:var(--ink);
-    font-weight:600;font-size:12.5px;padding:8px 14px;border-radius:999px;cursor:pointer}
-  :focus-visible{outline:2.5px solid var(--cm);outline-offset:2px;border-radius:8px}
-  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* DAY CARDS */
+.day{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-top:9px;box-shadow:var(--shadow);overflow:hidden;transition:border-color .2s}
+.day.is-today{border-color:var(--pd)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(31,138,130,.45)}70%{box-shadow:0 0 0 9px rgba(31,138,130,0)}100%{box-shadow:0 0 0 0 rgba(31,138,130,0)}}
+.day.pulse{animation:pulse .7s ease}
+.day-h{display:flex;align-items:center;gap:9px;padding:11px 13px;cursor:pointer;user-select:none}
+.dnum{font-family:"Space Grotesk";font-weight:700;font-size:10.5px;letter-spacing:.05em;color:#fff;background:var(--ink2);border-radius:7px;padding:4px 8px;flex:none;white-space:nowrap}
+.is-today .dnum{background:var(--pd)}
+.ddate{font-family:"IBM Plex Mono";font-size:10.5px;font-weight:600;color:var(--muted);flex:none;white-space:nowrap}
+.is-today .ddate{color:var(--pd)}
+.dmeta{flex:1;min-width:0}
+.dtheme{font-family:"Space Grotesk";font-weight:600;font-size:13px;letter-spacing:-.01em;line-height:1.3}
+.dprog{font-family:"IBM Plex Mono";font-size:11px;color:var(--muted);margin-top:3px}
+.dprog .sh{color:var(--amber)}
+.chev{flex:none;color:var(--muted);transition:transform .18s ease}
+.day.open .chev{transform:rotate(90deg)}
+.day-body{display:none;padding:0 8px 9px}
+.day.open .day-body{display:block}
+
+/* GROUPS */
+.grp-h{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:9px 6px 2px}
+
+/* ROWS */
+.row{display:flex;align-items:flex-start;gap:10px;padding:9px 8px;border-radius:10px;cursor:pointer;transition:background .1s}
+.row:active,.row:focus-visible{background:var(--surface2);outline:none}
+.box{width:22px;height:22px;border-radius:7px;border:2px solid #C2CDD6;flex:none;margin-top:1px;display:grid;place-items:center;background:var(--surface);transition:all .12s}
+.box svg{width:13px;height:13px}
+.lab{font-size:14px;line-height:1.4;font-weight:500;color:var(--ink)}
+mark{background:rgba(255,190,0,.3);color:inherit;border-radius:3px;padding:0 2px}
+body.dark mark{background:rgba(255,190,0,.18)}
+.row.shaky .box{border-color:var(--amber);background:var(--amber-bg)}
+.row.shaky .lab{color:var(--ink2)}
+.row.done .box{border-color:transparent}
+.row.done .lab{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1.5px}
+
+/* FOOTER */
+footer{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--hbg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+.foot{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:9px 16px;padding-bottom:calc(9px + env(safe-area-inset-bottom))}
+#status{font-size:11.5px;color:var(--muted);flex:1;line-height:1.4}
+.reset-btn{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font-weight:600;font-size:12px;padding:7px 13px;border-radius:999px;cursor:pointer;white-space:nowrap}
+:focus-visible{outline:2.5px solid var(--cm);outline-offset:2px;border-radius:8px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="title">Two-Week Revision Tracker</div>
-    <div class="sub">O&G · Paediatrics · Community Medicine — every topic, tick as you go</div>
-
+    <div class="title-row">
+      <div><div class="title">Revision Tracker</div><div class="sub">O&G &middot; Paediatrics &middot; Community Medicine &mdash; all 159 topics</div></div>
+      <div class="icon-row">
+        <button class="icon-btn" id="darkBtn" title="Toggle dark mode">&#127769;</button>
+      </div>
+    </div>
     <div class="chart">
-      <div class="ov-head">
-        <div class="ov-num"><span id="ovDone">0</span><small> / <span id="ovTot">0</span> topics</small></div>
-        <div class="ov-pct"><span id="ovPct">0</span>% done</div>
+      <div class="ov-row">
+        <div class="ov-num"><span id="ovConf">0</span><small> / <span id="ovTot">0</span> confident</small></div>
+        <div class="ov-meta">
+          <div class="ov-tag"><span class="ov-dot" style="background:var(--amber)"></span><span id="ovShaky">0</span>&nbsp;shaky</div>
+          <div class="ov-tag"><span id="ovPct">0</span>%</div>
+        </div>
       </div>
       <div class="track" id="ovTrack"></div>
       <div class="legend" id="legend"></div>
     </div>
-
     <div class="controls">
-      <button class="chip" data-f="all" aria-pressed="true">All</button>
-      <button class="chip og" data-f="og" aria-pressed="false">O&G</button>
-      <button class="chip pd" data-f="pd" aria-pressed="false">Paeds</button>
-      <button class="chip cm" data-f="cm" aria-pressed="false">Comm Med</button>
-      <span class="spacer"></span>
-      <button class="ghost" id="hideDone">Hide done</button>
-      <button class="ghost" id="toggleAll">Collapse all</button>
+      <button class="chip all active" data-f="all">All</button>
+      <button class="chip og" data-f="og">O&G</button>
+      <button class="chip pd" data-f="pd">Paeds</button>
+      <button class="chip cm" data-f="cm">Comm Med</button>
+      <button class="chip-today" id="todayBtn"><span>Today</span><span class="td-badge" id="todayBadge">D2</span></button>
+    </div>
+    <div class="search-wrap">
+      <span class="s-icon">&#128269;</span>
+      <input id="srch" type="search" placeholder="Search topics&hellip;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <button id="sclear" aria-label="Clear">&times;</button>
     </div>
   </header>
+
+  <div class="sec-row">
+    <button class="ghost" id="toggleAll">Expand all</button>
+    <span class="sep">&middot;</span>
+    <button class="ghost" id="btnShaky">Show shaky only</button>
+    <span class="sep">&middot;</span>
+    <button class="ghost" id="btnHide">Hide confident</button>
+  </div>
 
   <main id="days"></main>
 </div>
 
 <footer>
   <div class="foot">
-    <div class="st" id="status">Loading…</div>
-    <button class="reset" id="reset">Reset progress</button>
+    <div id="status">1 tap = shaky &nbsp;&middot;&nbsp; 2 taps = confident &nbsp;&middot;&nbsp; 3 taps = clear</div>
+    <button class="reset-btn" id="reset">Reset all</button>
   </div>
 </footer>
 
 <script>
-const DAYS = [{"theme":"Obstetric & neonatal emergencies · Biostatistics core","og":["Antepartum haemorrhage","Postpartum haemorrhage (primary & secondary)","Birth asphyxia (obstetric)"],"pd":["Neonatal jaundice","Neonatal sepsis","Perinatal asphyxia","Childhood morbidity & mortality"],"cm":["Rate, ratio & proportion","Inferential / inductive statistics","Biostatistics"]},{"theme":"Hypertensive & medical pregnancy · Neonatology II","og":["Chronic hypertension in pregnancy","Malaria in pregnancy","Cardiac disease in pregnancy"],"pd":["Neonatal seizures","Neonatal tetanus","Neonatal cholestasis","Physical characteristics & behaviour of normal neonates"],"cm":["Epidemiology — general principles","Standardization of rates","Demography","Psyche"]},{"theme":"Medical disorders in pregnancy II · Paediatric nephrology I","og":["UTI in pregnancy","Jaundice in pregnancy","Rhesus disease","Coagulation & fibrinolysis in pregnancy"],"pd":["Acute glomerulonephritis","Nephrotic syndrome","UTI in children","Congenital anomalies of the kidneys"],"cm":["Epidemiology & control of VHFs","Airborne infections — measles, mumps & rubella","Dengue fever"]},{"theme":"Labour I · Paediatric nephrology II","og":["Labour","Mechanism of labour","Obstructed labour","Pain relief in labour"],"pd":["Acute kidney injury","Chronic kidney disease","Childhood hypertension","Signs & symptoms of urinary tract disorders"],"cm":["Safe motherhood initiative","Family planning","At-risk concept in maternal & child health"]},{"theme":"Labour II & perineum · Paediatric GIT & nutrition","og":["Breech presentation","Cervical incompetence","Obstetric anal sphincter injury"],"pd":["Diarrhoea","Fluid & electrolyte disturbances","Protein-energy malnutrition","Childhood obesity"],"cm":["National breastfeeding policy & baby-friendly initiative","Health needs of a child & infant welfare clinic","School health programme"]},{"theme":"Multiple & fetal pregnancy · Paediatric cardiology I","og":["Multiple pregnancy","Polyhydramnios & oligohydramnios","IUGR & IUFD"],"pd":["Common congenital heart disease","Tetralogy of Fallot","Congestive heart failure in infants & children","Signs & symptoms of cardiovascular disease","Integrated child health services (PHC concept)"],"cm":["Introduction to public health","Nigerian national population policy","Culture & health"]},{"theme":"Early pregnancy & trophoblastic · Rheumatic heart · PHC","og":["Abortion / miscarriage","Gestational trophoblastic disease","Gestational trophoblastic neoplasia"],"pd":["Acute rheumatic fever","Rheumatic heart disease","History taking in paediatrics","Counselling in paediatrics","Ethics in paediatric care"],"cm":["Primary health care","Bamako initiative","Health services","Doctor–patient relationship"]},{"theme":"Genital tract infections · Paediatric respiratory & infections","og":["Sexually transmitted infections","Vaginal discharge","Bacterial vaginosis","Female genital mutilation"],"pd":["Pneumonia, bronchiectasis & lung abscess","Tuberculosis","Malaria","Signs & symptoms of respiratory disease"],"cm":["Introduction to environmental health","Water supply & purification","Vector control","Epidemiology of healthcare-associated infections"]},{"theme":"Menstrual & endocrine gynaecology · Infections II","og":["Infertility","Amenorrhoea","Menopause","Endometriosis"],"pd":["Enteric fever","Infectious hepatitis","IMCI","Management of a critically ill child","Sustainable Development Goals (SDGs)"],"cm":["Housing & health","Occupational cancers","Pneumoconiosis","Hazards"]},{"theme":"Gynaecological tumours · Paediatric endocrine","og":["Ovarian tumours","Uterine fibroid","Endometrial hyperplasia","Malignant disease of the uterus","Benign tumours of the cervix"],"pd":["Thyroid disorders","Diabetes mellitus in children & adolescents","Congenital adrenal hyperplasia","Signs & symptoms of endocrine disease"],"cm":["Biological & environmental monitoring","Port health","Ageing & health"]},{"theme":"Urogynaecology · Metabolic / IEM · NCD epidemiology","og":["Control of micturition & urinary incontinence","Urge incontinence","Gynaecological disorders in childhood & adolescence"],"pd":["Inborn errors of metabolism","Galactosaemia","Phenylketonuria (PKU)","Prescribing for children"],"cm":["Epidemiology & control of malignant diseases","Epidemiology of PUD, asthma & albinism","Epidemiology of SCD & Down syndrome","Rehabilitation"]},{"theme":"O&G foundations · Paediatric neurology & MSK · Research methods","og":["Anatomy of the female pelvis & fetal skull","Development of the female genital tract","Physiology of puberty","Menstrual cycle","Basic genetics in obstetrics"],"pd":["Cerebral palsy","Acute flaccid paralysis","Musculoskeletal diseases","Orthopaedic diseases in childhood","Signs & symptoms of the musculoskeletal system"],"cm":["Research methods","Conducting & documenting a literature search","Sampling techniques"]},{"theme":"Operative O&G & maternal health · Paediatric genetics & blood","og":["Maternal mortality","Imaging in O&G","Principles & pre/post-operative care in O&G","Endoscopy","Problems of the primigravida & multigravida","Philosophy & need for family planning"],"pd":["Down syndrome","Development & function of the formed elements of blood","Growth standards & monitoring","Patterns of development of the normal child (1st year)","Paediatric gynaecological disorders","Ophthalmological diseases in childhood"],"cm":["Research integrity / responsible conduct of research","AI in medicine"]},{"theme":"Catch-up & psychosocial · Surgical paeds · Social medicine","og":["Postpartum depression"],"pd":["Surgical emergencies in children","Congenital GIT anomalies","Lecture note on health services","Right of a child"],"cm":["Ethics & jurisprudence","Social deviances","Theories of social deviance"]}];
-const SUBJ = {"og":{"name":"Obstetrics & Gynaecology","short":"O&G","color":"#B5476A"},"pd":{"name":"Paediatrics","short":"Paeds","color":"#1F8A82"},"cm":{"name":"Community Medicine","short":"Comm Med","color":"#4A5BB0"}};
-const ORDER = ["og","pd","cm"];
-const KEY = "revtracker:v1";
+var DAYS = [{"theme":"Obstetric & neonatal emergencies · Biostatistics core","og":["Antepartum haemorrhage","Postpartum haemorrhage (primary & secondary)","Birth asphyxia (obstetric)"],"pd":["Neonatal jaundice","Neonatal sepsis","Perinatal asphyxia","Childhood morbidity & mortality"],"cm":["Rate, ratio & proportion","Inferential & inductive statistics","Biostatistics"]},{"theme":"Hypertensive & medical pregnancy · Neonatology II","og":["Chronic hypertension in pregnancy","Malaria in pregnancy","Cardiac disease in pregnancy"],"pd":["Neonatal seizures","Neonatal tetanus","Neonatal cholestasis","Physical characteristics & behaviour of normal neonates"],"cm":["Epidemiology — general principles","Standardization of rates","Demography","Psyche"]},{"theme":"Medical disorders in pregnancy II · Paediatric nephrology I","og":["UTI in pregnancy","Jaundice in pregnancy","Rhesus disease","Coagulation & fibrinolysis in pregnancy"],"pd":["Acute glomerulonephritis","Nephrotic syndrome","UTI in children","Congenital anomalies of the kidneys"],"cm":["Epidemiology & control of VHFs","Airborne infections — measles, mumps & rubella","Dengue fever"]},{"theme":"Labour I · Paediatric nephrology II","og":["Labour","Mechanism of labour","Obstructed labour","Pain relief in labour"],"pd":["Acute kidney injury","Chronic kidney disease","Childhood hypertension","Signs & symptoms of urinary tract disorders"],"cm":["Safe motherhood initiative","Family planning","At-risk concept in maternal & child health"]},{"theme":"Labour II & perineum · Paediatric GIT & nutrition","og":["Breech presentation","Cervical incompetence","Obstetric anal sphincter injury"],"pd":["Diarrhoea","Fluid & electrolyte disturbances","Protein-energy malnutrition","Childhood obesity"],"cm":["National breastfeeding policy & baby-friendly initiative","Health needs of a child & infant welfare clinic","School health programme"]},{"theme":"Multiple & fetal pregnancy · Paediatric cardiology I","og":["Multiple pregnancy","Polyhydramnios & oligohydramnios","IUGR & IUFD"],"pd":["Common congenital heart disease","Tetralogy of Fallot","Congestive heart failure in infants & children","Signs & symptoms of cardiovascular disease","Integrated child health services — PHC concept"],"cm":["Introduction to public health","Nigerian national population policy","Culture & health"]},{"theme":"Early pregnancy & trophoblastic · Rheumatic heart · PHC","og":["Abortion & miscarriage","Gestational trophoblastic disease","Gestational trophoblastic neoplasia"],"pd":["Acute rheumatic fever","Rheumatic heart disease","History taking in paediatrics","Counselling in paediatrics","Ethics in paediatric care"],"cm":["Primary health care","Bamako initiative","Health services","Doctor-patient relationship"]},{"theme":"Genital tract infections · Paediatric respiratory & infections","og":["Sexually transmitted infections","Vaginal discharge","Bacterial vaginosis","Female genital mutilation"],"pd":["Pneumonia, bronchiectasis & lung abscess","Tuberculosis","Malaria","Signs & symptoms of respiratory disease"],"cm":["Introduction to environmental health","Water supply & purification","Vector control","Epidemiology of healthcare-associated infections"]},{"theme":"Menstrual & endocrine gynaecology · Infections II","og":["Infertility","Amenorrhoea","Menopause","Endometriosis"],"pd":["Enteric fever","Infectious hepatitis","IMCI","Management of a critically ill child","Sustainable Development Goals (SDGs)"],"cm":["Housing & health","Occupational cancers","Pneumoconiosis","Hazards"]},{"theme":"Gynaecological tumours · Paediatric endocrine","og":["Ovarian tumours","Uterine fibroid","Endometrial hyperplasia","Malignant disease of the uterus","Benign tumours of the cervix"],"pd":["Thyroid disorders","Diabetes mellitus in children & adolescents","Congenital adrenal hyperplasia","Signs & symptoms of endocrine disease"],"cm":["Biological & environmental monitoring","Port health","Ageing & health"]},{"theme":"Urogynaecology · Metabolic & IEM · NCD epidemiology","og":["Control of micturition & urinary incontinence","Urge incontinence","Gynaecological disorders in childhood & adolescence"],"pd":["Inborn errors of metabolism","Galactosaemia","Phenylketonuria (PKU)","Prescribing for children"],"cm":["Epidemiology & control of malignant diseases","Epidemiology of PUD, asthma & albinism","Epidemiology of SCD & Down syndrome","Rehabilitation"]},{"theme":"O&G foundations · Paediatric neurology & MSK · Research methods","og":["Anatomy of the female pelvis & fetal skull","Development of the female genital tract","Physiology of puberty","Menstrual cycle","Basic genetics in obstetrics"],"pd":["Cerebral palsy","Acute flaccid paralysis","Musculoskeletal diseases","Orthopaedic diseases in childhood","Signs & symptoms of the musculoskeletal system"],"cm":["Research methods","Conducting & documenting a literature search","Sampling techniques"]},{"theme":"Operative O&G & maternal health · Paediatric genetics & development","og":["Maternal mortality","Imaging in O&G","Principles of pre & postoperative care in O&G","Endoscopy","Problems of the primigravida & multigravida","Philosophy & need for family planning"],"pd":["Down syndrome","Development & function of the formed elements of blood","Growth standards & monitoring","Patterns of development of the normal child (1st year)","Paediatric gynaecological disorders","Ophthalmological diseases in childhood"],"cm":["Research integrity & responsible conduct of research","AI in medicine"]},{"theme":"Catch-up day · Psychosocial · Surgical paeds · Social medicine","og":["Postpartum depression"],"pd":["Surgical emergencies in children","Congenital GIT anomalies","Lecture note on health services","Right of a child"],"cm":["Ethics & jurisprudence","Social deviances","Theories of social deviance"]}];
+var SUBJ = {"og":{"name":"Obstetrics & Gynaecology","short":"O&G","color":"#B5476A"},"pd":{"name":"Paediatrics","short":"Paeds","color":"#1F8A82"},"cm":{"name":"Community Medicine","short":"Comm Med","color":"#4A5BB0"}};
+var ORDER = ["og","pd","cm"];
+var START = new Date(2026, 5, 28); // June 28 2026
 
-let state = {};        // id -> true
-let filter = "all";
-let hideDone = false;
-let allOpen = true;
+var KEY_S = "revtracker:state:v3";
+var KEY_D = "revtracker:dark:v1";
 
-// ---- persistence (artifact storage, with safe fallback) ----
-async function load(){
+var topicState = {};
+var dark = false;
+var filter = "all";
+var shakyOnly = false;
+var hideConf = false;
+var searchQ = "";
+var openDays = new Set();
+
+var $ = function(id){ return document.getElementById(id); };
+var tid = function(d,s,i){ return "d"+d+"-"+s+"-"+i; };
+
+function todayIdx(){
+  var now = new Date(); now.setHours(0,0,0,0);
+  var diff = Math.round((now - START) / 86400000);
+  return Math.max(0, Math.min(diff, DAYS.length-1));
+}
+function dayDate(i){
+  var d = new Date(START.getTime()); d.setDate(d.getDate()+i);
+  return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+}
+
+/* persistence */
+function load(){
   try{
-    if(window.storage){
-      const r = await window.storage.get(KEY);
-      if(r && r.value) state = JSON.parse(r.value);
-    }
-  }catch(e){ state = {}; }
+    var r = localStorage.getItem(KEY_S);
+    if(r) topicState = JSON.parse(r);
+    dark = localStorage.getItem(KEY_D) === "true";
+  }catch(e){ topicState={}; dark=false; }
 }
-let saveTimer=null;
+var _st = null;
 function save(){
-  if(saveTimer) clearTimeout(saveTimer);
-  saveTimer=setTimeout(async()=>{
-    try{ if(window.storage) await window.storage.set(KEY, JSON.stringify(state)); }
-    catch(e){ setStatus("Couldn't save — progress kept for this session only."); }
-  },200);
+  clearTimeout(_st);
+  _st = setTimeout(function(){
+    try{ localStorage.setItem(KEY_S, JSON.stringify(topicState)); localStorage.setItem(KEY_D, dark); }
+    catch(e){ $("status").textContent = "Storage full - progress may not save."; }
+  }, 200);
 }
 
-const tid=(d,s,i)=>"d"+d+"-"+s+"-"+i;
+/* counts */
 function counts(){
-  const c={all:{d:0,t:0},og:{d:0,t:0},pd:{d:0,t:0},cm:{d:0,t:0}};
-  DAYS.forEach((day,di)=>ORDER.forEach(s=>day[s].forEach((_,i)=>{
-    const done=!!state[tid(di,s,i)];
-    c[s].t++; c.all.t++; if(done){c[s].d++; c.all.d++;}
-  })));
+  var c = {all:{conf:0,shaky:0,t:0}};
+  ORDER.forEach(function(s){ c[s]={conf:0,shaky:0,t:0}; });
+  DAYS.forEach(function(day,di){
+    ORDER.forEach(function(s){
+      day[s].forEach(function(_,i){
+        var v = topicState[tid(di,s,i)] || 0;
+        c[s].t++; c.all.t++;
+        if(v===2){ c[s].conf++; c.all.conf++; }
+        if(v===1){ c[s].shaky++; c.all.shaky++; }
+      });
+    });
+  });
   return c;
 }
 function dayCounts(di){
-  let d=0,t=0;
-  ORDER.forEach(s=>DAYS[di][s].forEach((_,i)=>{t++; if(state[tid(di,s,i)])d++;}));
-  return {d,t};
+  var conf=0,shaky=0,t=0;
+  ORDER.forEach(function(s){
+    DAYS[di][s].forEach(function(_,i){
+      t++;
+      var v = topicState[tid(di,s,i)] || 0;
+      if(v===2) conf++; if(v===1) shaky++;
+    });
+  });
+  return {conf:conf,shaky:shaky,t:t};
 }
 
-function setStatus(msg){ document.getElementById("status").textContent=msg; }
+/* SVGs */
+var SVG_CHECK = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.2 4.2L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var SVG_FLAG  = '<svg viewBox="0 0 24 24" fill="none"><path d="M6 3v18" stroke="#D97706" stroke-width="2.2" stroke-linecap="round"/><path d="M6 3h12l-3 4.5 3 4.5H6z" fill="#D97706" fill-opacity=".25" stroke="#D97706" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+var SVG_CHEV  = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
+function hl(text, q){
+  if(!q) return text;
+  var idx = text.toLowerCase().indexOf(q.toLowerCase());
+  if(idx===-1) return text;
+  return text.slice(0,idx) + '<mark>' + text.slice(idx,idx+q.length) + '</mark>' + text.slice(idx+q.length);
+}
+
+/* chart */
 function renderChart(){
-  const c=counts();
-  document.getElementById("ovDone").textContent=c.all.d;
-  document.getElementById("ovTot").textContent=c.all.t;
-  document.getElementById("ovPct").textContent=c.all.t?Math.round(100*c.all.d/c.all.t):0;
-  const tr=document.getElementById("ovTrack"); tr.innerHTML="";
-  ORDER.forEach(s=>{
-    const seg=document.createElement("i");
-    seg.style.width=(100*c[s].d/(c.all.t||1))+"%";
-    seg.style.background=SUBJ[s].color;
+  var c = counts();
+  var tot = c.all.t || 1;
+  $("ovConf").textContent = c.all.conf;
+  $("ovTot").textContent  = c.all.t;
+  $("ovShaky").textContent= c.all.shaky;
+  $("ovPct").textContent  = Math.round(100*(c.all.conf+c.all.shaky)/tot);
+  var tr = $("ovTrack"); tr.innerHTML = "";
+  ORDER.forEach(function(s){
+    var seg = document.createElement("i");
+    seg.style.width = (100*c[s].conf/tot)+"%";
+    seg.style.background = SUBJ[s].color;
     tr.appendChild(seg);
   });
-  const lg=document.getElementById("legend"); lg.innerHTML="";
-  ORDER.forEach(s=>{
-    const pct=c[s].t?Math.round(100*c[s].d/c[s].t):0;
-    const el=document.createElement("div"); el.className="lg";
-    el.innerHTML='<div class="lbl"><span class="dot" style="background:'+SUBJ[s].color+'"></span>'+SUBJ[s].short+'</div>'+
-      '<div class="cnt">'+c[s].d+'/'+c[s].t+'</div>'+
-      '<div class="mini"><i style="width:'+pct+'%;background:'+SUBJ[s].color+'"></i></div>';
+  var amb = document.createElement("i");
+  amb.style.width = (100*c.all.shaky/tot)+"%";
+  amb.style.background = "#D97706";
+  tr.appendChild(amb);
+  var lg = $("legend"); lg.innerHTML = "";
+  ORDER.forEach(function(s){
+    var pc = c[s].t ? Math.round(100*c[s].conf/c[s].t) : 0;
+    var ps = c[s].t ? Math.round(100*c[s].shaky/c[s].t) : 0;
+    var el = document.createElement("div"); el.className = "lg";
+    el.innerHTML =
+      '<div class="lh"><span class="ldot" style="background:'+SUBJ[s].color+'"></span>'+SUBJ[s].short+'</div>'+
+      '<div class="lnums">'+c[s].conf+'/'+c[s].t+'</div>'+
+      (c[s].shaky ? '<div class="lshaky">'+c[s].shaky+' shaky</div>' : '')+
+      '<div class="lbar"><i style="width:'+pc+'%;background:'+SUBJ[s].color+'"></i><i style="width:'+ps+'%;background:#D97706"></i></div>';
     lg.appendChild(el);
   });
 }
 
-const CHECK='<svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.2 4.2L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-
+/* render days */
 function renderDays(){
-  const root=document.getElementById("days"); root.innerHTML="";
-  DAYS.forEach((day,di)=>{
-    const dc=dayCounts(di);
-    const card=document.createElement("section");
-    card.className="day"+(allOpen?" open":"");
-    card.dataset.day=di;
+  var root = $("days"); root.innerHTML = "";
+  var todayI = todayIdx();
+  var q = searchQ.trim().toLowerCase();
 
-    const head=document.createElement("div"); head.className="day-h";
-    head.innerHTML='<span class="dnum">DAY '+(di+1)+'</span>'+
+  DAYS.forEach(function(day,di){
+    // check if any topic visible
+    var anyVisible = false;
+    ORDER.forEach(function(s){
+      if(filter!=="all"&&filter!==s) return;
+      day[s].forEach(function(t,i){
+        if(q && t.toLowerCase().indexOf(q)===-1) return;
+        var v = topicState[tid(di,s,i)] || 0;
+        if(hideConf && v===2) return;
+        if(shakyOnly && v!==1) return;
+        anyVisible = true;
+      });
+    });
+    if(q && !anyVisible) return;
+
+    var isToday = (di === todayI);
+    var isOpen  = openDays.has(di);
+    var dc = dayCounts(di);
+
+    var card = document.createElement("section");
+    card.className = "day" + (isOpen?" open":"") + (isToday?" is-today":"");
+    card.dataset.day = di;
+
+    var head = document.createElement("div"); head.className = "day-h";
+    var progHtml = dc.conf+"/"+dc.t+" confident"+(dc.shaky?' &middot; <span class="sh">'+dc.shaky+' shaky</span>':"");
+    head.innerHTML =
+      '<span class="dnum">'+(isToday?"TODAY":"DAY "+(di+1))+'</span>'+
+      '<span class="ddate">'+dayDate(di)+'</span>'+
       '<div class="dmeta"><div class="dtheme">'+day.theme+'</div>'+
-      '<div class="dcount">'+dc.d+' / '+dc.t+' done</div></div>'+
-      '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    head.onclick=()=>card.classList.toggle("open");
+      '<div class="dprog">'+progHtml+'</div></div>'+
+      '<span class="chev">'+SVG_CHEV+'</span>';
+    head.onclick = function(){
+      card.classList.toggle("open");
+      if(card.classList.contains("open")) openDays.add(di); else openDays.delete(di);
+    };
     card.appendChild(head);
 
-    const body=document.createElement("div"); body.className="day-body";
-    ORDER.forEach(s=>{
+    var body = document.createElement("div"); body.className = "day-body";
+    ORDER.forEach(function(s){
       if(filter!=="all"&&filter!==s) return;
-      const items=day[s];
-      const grp=document.createElement("div"); grp.className="grp";
-      const gh=document.createElement("div"); gh.className="grp-h";
-      gh.innerHTML='<span class="dot" style="background:'+SUBJ[s].color+'"></span>'+SUBJ[s].name;
+      var grp = document.createElement("div");
+      var gh = document.createElement("div"); gh.className = "grp-h";
+      gh.innerHTML = '<span class="ldot" style="background:'+SUBJ[s].color+'"></span>'+SUBJ[s].name;
       grp.appendChild(gh);
-      items.forEach((t,i)=>{
-        const id=tid(di,s,i), done=!!state[id];
-        if(hideDone&&done) return;
-        const row=document.createElement("div");
-        row.className="row"+(done?" done":""); row.tabIndex=0;
-        row.setAttribute("role","checkbox"); row.setAttribute("aria-checked",done);
-        const box=document.createElement("div"); box.className="box";
-        if(done) box.style.background=SUBJ[s].color, box.style.borderColor=SUBJ[s].color;
-        box.innerHTML=CHECK;
-        const lab=document.createElement("div"); lab.className="lab"; lab.textContent=t;
+      var hasRow = false;
+      day[s].forEach(function(t,i){
+        if(q && t.toLowerCase().indexOf(q)===-1) return;
+        var fullId = tid(di,s,i);
+        var v = topicState[fullId] || 0;
+        if(hideConf && v===2) return;
+        if(shakyOnly && v!==1) return;
+        hasRow = true;
+        var row = document.createElement("div");
+        row.className = "row"+(v===1?" shaky":v===2?" done":"");
+        row.tabIndex = 0;
+        row.setAttribute("role","checkbox");
+        row.setAttribute("aria-checked", v===2?"true":v===1?"mixed":"false");
+        var box = document.createElement("div"); box.className = "box";
+        applyBoxStyle(box, v, s);
+        var lab = document.createElement("div"); lab.className = "lab";
+        lab.innerHTML = hl(t, searchQ.trim());
         row.appendChild(box); row.appendChild(lab);
-        const toggle=()=>{
-          if(state[id]) delete state[id]; else state[id]=true;
-          save(); refresh();
-        };
-        row.onclick=toggle;
-        row.onkeydown=e=>{ if(e.key===" "||e.key==="Enter"){e.preventDefault();toggle();} };
+        (function(r,fid,subj,dayIdx){
+          function toggle(){
+            var cur = topicState[fid] || 0;
+            var nxt = (cur+1)%3;
+            if(nxt===0) delete topicState[fid]; else topicState[fid]=nxt;
+            save();
+            var nv = topicState[fid] || 0;
+            r.className = "row"+(nv===1?" shaky":nv===2?" done":"");
+            r.setAttribute("aria-checked", nv===2?"true":nv===1?"mixed":"false");
+            applyBoxStyle(r.querySelector(".box"), nv, subj);
+            if((hideConf&&nv===2)||(shakyOnly&&nv!==1)) r.style.display="none";
+            updateDayProgress(dayIdx);
+            renderChart();
+            updateStatus();
+          }
+          r.onclick = toggle;
+          r.onkeydown = function(e){ if(e.key===" "||e.key==="Enter"){e.preventDefault();toggle();} };
+        })(row, fullId, s, di);
         grp.appendChild(row);
       });
-      if(grp.querySelectorAll(".row").length) body.appendChild(grp);
+      if(hasRow) body.appendChild(grp);
     });
     card.appendChild(body);
     root.appendChild(card);
   });
 }
 
-function refresh(){
-  // preserve which cards are open
-  const open=[...document.querySelectorAll(".day.open")].map(c=>c.dataset.day);
-  renderChart(); renderDays();
-  open.forEach(d=>{const el=document.querySelector('.day[data-day="'+d+'"]'); if(el)el.classList.add("open");});
-  const c=counts();
-  setStatus(c.all.d===c.all.t&&c.all.t>0 ? "All done — go smash the exam." : "Progress saves automatically.");
+function applyBoxStyle(box, v, s){
+  box.innerHTML = "";
+  box.style.background = box.style.borderColor = "";
+  if(v===1){
+    box.innerHTML = SVG_FLAG;
+    box.style.borderColor = "#D97706";
+    box.style.background = dark ? "#2A1A00" : "#FEF3C7";
+  } else if(v===2){
+    box.innerHTML = SVG_CHECK;
+    box.style.background = box.style.borderColor = SUBJ[s].color;
+  }
 }
 
-// controls
-document.querySelectorAll(".chip").forEach(ch=>ch.onclick=()=>{
-  filter=ch.dataset.f;
-  document.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed", x===ch));
-  allOpen=true; refresh();
+function updateDayProgress(di){
+  var card = document.querySelector(".day[data-day='"+di+"']");
+  if(!card) return;
+  var dc = dayCounts(di);
+  var el = card.querySelector(".dprog");
+  if(el) el.innerHTML = dc.conf+"/"+dc.t+" confident"+(dc.shaky?' &middot; <span class="sh">'+dc.shaky+' shaky</span>':"");
+}
+
+function updateStatus(){
+  var c = counts();
+  if(c.all.conf===c.all.t && c.all.t>0)
+    $("status").textContent = "All confident. Go smash the exam.";
+  else if(c.all.shaky>0)
+    $("status").textContent = c.all.shaky+" flagged for review  ·  "+c.all.conf+" confident";
+  else
+    $("status").textContent = "1 tap = shaky  ·  2 taps = confident  ·  3 taps = clear";
+}
+
+function fullRender(){
+  renderChart(); renderDays(); updateStatus();
+}
+
+/* dark mode */
+function applyDark(){
+  document.body.classList.toggle("dark", dark);
+  $("darkBtn").innerHTML = dark ? "&#9728;&#65039;" : "&#127769;";
+}
+
+/* today */
+function goToday(){
+  var i = todayIdx();
+  openDays.add(i);
+  fullRender();
+  setTimeout(function(){
+    var el = document.querySelector(".day[data-day='"+i+"']");
+    if(!el) return;
+    el.scrollIntoView({behavior:"smooth",block:"center"});
+    el.classList.remove("pulse");
+    void el.offsetWidth;
+    el.classList.add("pulse");
+    setTimeout(function(){ el.classList.remove("pulse"); }, 800);
+  }, 60);
+}
+
+function updateTodayBadge(){
+  $("todayBadge").textContent = "D"+(todayIdx()+1);
+}
+
+/* search */
+var _sq = null;
+$("srch").addEventListener("input", function(){
+  clearTimeout(_sq);
+  var val = this.value;
+  _sq = setTimeout(function(){
+    searchQ = val;
+    $("sclear").style.display = searchQ ? "block" : "none";
+    if(searchQ){
+      var q = searchQ.toLowerCase();
+      DAYS.forEach(function(day,di){
+        var hit = ORDER.some(function(s){
+          return day[s].some(function(t){ return t.toLowerCase().indexOf(q)!==-1; });
+        });
+        if(hit) openDays.add(di);
+      });
+    }
+    fullRender();
+  }, 150);
 });
-document.getElementById("hideDone").onclick=function(){
-  hideDone=!hideDone; this.textContent=hideDone?"Show done":"Hide done"; refresh();
-};
-document.getElementById("toggleAll").onclick=function(){
-  allOpen=!allOpen;
-  document.querySelectorAll(".day").forEach(c=>c.classList.toggle("open",allOpen));
-  this.textContent=allOpen?"Collapse all":"Expand all";
-};
-document.getElementById("reset").onclick=async function(){
-  if(!confirm("Clear all ticks and start over?")) return;
-  state={};
-  try{ if(window.storage) await window.storage.delete(KEY); }catch(e){}
-  refresh();
+$("sclear").onclick = function(){
+  searchQ = ""; $("srch").value = ""; this.style.display = "none"; fullRender();
 };
 
-(async function(){ await load(); refresh(); })();
+/* filter chips */
+document.querySelectorAll(".chip[data-f]").forEach(function(ch){
+  ch.onclick = function(){
+    filter = ch.dataset.f;
+    document.querySelectorAll(".chip[data-f]").forEach(function(x){
+      x.classList.toggle("active", x===ch);
+    });
+    fullRender();
+  };
+});
+
+/* expand/collapse */
+var allExp = false;
+$("toggleAll").onclick = function(){
+  allExp = !allExp;
+  if(allExp){ DAYS.forEach(function(_,i){ openDays.add(i); }); this.textContent="Collapse all"; }
+  else { openDays.clear(); openDays.add(todayIdx()); this.textContent="Expand all"; }
+  fullRender();
+};
+
+/* shaky only */
+$("btnShaky").onclick = function(){
+  shakyOnly = !shakyOnly;
+  if(shakyOnly){ hideConf=false; $("btnHide").textContent="Hide confident"; }
+  this.textContent = shakyOnly ? "Show all" : "Show shaky only";
+  fullRender();
+};
+
+/* hide confident */
+$("btnHide").onclick = function(){
+  hideConf = !hideConf;
+  if(hideConf){ shakyOnly=false; $("btnShaky").textContent="Show shaky only"; }
+  this.textContent = hideConf ? "Show confident" : "Hide confident";
+  fullRender();
+};
+
+$("todayBtn").onclick = goToday;
+$("darkBtn").onclick  = function(){ dark=!dark; applyDark(); save(); };
+$("reset").onclick    = function(){
+  if(!confirm("Clear all ticks and start over?")) return;
+  topicState = {};
+  try{ localStorage.removeItem(KEY_S); }catch(e){}
+  fullRender();
+};
+
+/* init */
+load();
+applyDark();
+updateTodayBadge();
+openDays.add(todayIdx());
+fullRender();
 </script>
 </body>
 </html>
